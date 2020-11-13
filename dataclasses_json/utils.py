@@ -1,9 +1,11 @@
 import inspect
 import sys
 from datetime import datetime, timezone
+from functools import lru_cache
 from typing import Collection, Mapping, Optional, TypeVar, Any
 
 
+@lru_cache
 def _get_type_cons(type_):
     """More spaghetti logic for 3.6 vs. 3.7"""
     if sys.version_info.minor == 6:
@@ -26,6 +28,7 @@ def _get_type_cons(type_):
     return cons
 
 
+@lru_cache
 def _get_type_origin(type_):
     """Some spaghetti logic to accommodate differences between 3.6 and 3.7 in
     the typing api"""
@@ -62,6 +65,7 @@ def _isinstance_safe(o, t):
         return result
 
 
+@lru_cache
 def _issubclass_safe(cls, classinfo):
     try:
         return issubclass(cls, classinfo)
@@ -71,6 +75,7 @@ def _issubclass_safe(cls, classinfo):
                 else False)
 
 
+@lru_cache
 def _is_new_type_subclass_safe(cls, classinfo):
     super_type = getattr(cls, "__supertype__", None)
 
@@ -87,16 +92,19 @@ def _is_new_type(type_):
     return inspect.isfunction(type_) and hasattr(type_, "__supertype__")
 
 
+@lru_cache
 def _is_optional(type_):
     return (_issubclass_safe(type_, Optional) or
             _hasargs(type_, type(None)) or
             type_ is Any)
 
 
+@lru_cache
 def _is_mapping(type_):
     return _issubclass_safe(_get_type_origin(type_), Mapping)
 
 
+@lru_cache
 def _is_collection(type_):
     return _issubclass_safe(_get_type_origin(type_), Collection)
 
